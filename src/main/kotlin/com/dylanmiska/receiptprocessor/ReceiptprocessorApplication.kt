@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class ReceiptprocessorApplication
 
 fun main(args: Array<String>) {
-	runApplication<ReceiptprocessorApplication>(*args)
+    runApplication<ReceiptprocessorApplication>(*args)
 }
