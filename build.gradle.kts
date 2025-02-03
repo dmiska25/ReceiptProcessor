@@ -32,7 +32,7 @@ dependencies {
     runtimeOnly("com.h2database:h2:2.3.232")
     testImplementation("org.springframework.boot:spring-boot-starter-test:3.4.2")
     testImplementation("io.mockk:mockk:1.13.16")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:2.1.10")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:1.9.25")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.11.4")
 }
 

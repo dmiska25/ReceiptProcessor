@@ -23,14 +23,17 @@
             <column name="total" type="DECIMAL(10, 2)">
                 <constraints nullable="false"/>
             </column>
+            <column name="points" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
 
-        <createTable tableName="receipt_item">
+        <createTable tableName="item">
             <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="receipt_id" type="UUID">
-                <constraints nullable="false" foreignKeyName="fk_receipt_item_receipt" references="receipt(id)"/>
+                <constraints nullable="false" foreignKeyName="fk_item_receipt" references="receipt(id)"/>
             </column>
             <column name="short_description" type="VARCHAR(255)">
                 <constraints nullable="false"/>
@@ -39,7 +42,7 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <createIndex tableName="receipt_item" indexName="idx_receipt_item_receipt_id">
+        <createIndex tableName="item" indexName="idx_item_receipt_id">
             <column name="receipt_id"/>
         </createIndex>
     </changeSet>
