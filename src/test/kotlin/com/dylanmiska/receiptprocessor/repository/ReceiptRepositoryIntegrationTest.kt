@@ -92,7 +92,7 @@ class ReceiptRepositoryIntegrationTest {
         val savedReceipt = receiptRepository.save(receipt)
         val points = receiptRepository.getPointsForReceipt(savedReceipt.id!!)
 
-        assertEquals(123, points)
+        assertEquals(123, points.get())
     }
 
     @Test
