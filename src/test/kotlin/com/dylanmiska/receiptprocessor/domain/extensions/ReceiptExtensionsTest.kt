@@ -79,6 +79,20 @@ class ReceiptExtensionsTest {
         }
 
         @Test
+        fun `no points if the time of purchase is 2pm`() {
+            val receipt = receipt.copy(purchaseTime = LocalTime.of(14, 0))
+            receipt.updatePoints()
+            assertEquals(0, receipt.points)
+        }
+
+        @Test
+        fun `no points if the time of purchase is 4pm`() {
+            val receipt = receipt.copy(purchaseTime = LocalTime.of(16, 0))
+            receipt.updatePoints()
+            assertEquals(0, receipt.points)
+        }
+
+        @Test
         fun `All points combined`() {
             val receipt =
                 receipt.copy(
