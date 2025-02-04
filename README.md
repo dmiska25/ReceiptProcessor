@@ -7,14 +7,14 @@ points earned. The service is built using Spring Boot and an H2 in-memory databa
 
 To run the project with docker, you can use the included `Dockerfile`. This will build
 the project with gradle and run the jar file in a docker container. The h2 database I mentioned
-is started silently in memory with the application so you don't need to worry about setting it up.
+is started silently in memory with the application so shouldn't require any setup.
     
 ```bash
 docker build -t receiptprocessor:v1 .
 docker run -d --name receipt-server -p 8080:8080 receiptprocessor:v1
 ```
 
-This will start the server on port 8080. You can access the server by visiting `http://localhost:8080`.
+This will start the server on port 8080. The build may take a few minutes to download gradle and java. Once done, you can access the server by visiting `http://localhost:8080`.
 
 ## Usage
 
