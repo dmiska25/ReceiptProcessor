@@ -60,7 +60,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun handleHttpMessageNotReadableException(ex: HttpMessageNotReadableException): ResponseEntity<ErrorResponse> {
-        val message = ex.mostSpecificCause?.message ?: ex.message ?: "Invalid JSON"
+        val message = ex.mostSpecificCause.message ?: ex.message ?: "Invalid JSON"
         val errorResponse =
             ErrorResponse(
                 status = HttpStatus.BAD_REQUEST.value(),

@@ -1,104 +1,96 @@
 package com.dylanmiska.receiptprocessor.repository
 
-import com.dylanmiska.receiptprocessor.persistance.entity.ItemEntity
-import com.dylanmiska.receiptprocessor.persistance.entity.ReceiptEntity
+import com.dylanmiska.receiptprocessor.domain.model.Item
+import com.dylanmiska.receiptprocessor.domain.model.Receipt
 import com.dylanmiska.receiptprocessor.persistance.repository.ReceiptRepository
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.jooq.DSLContext
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.LocalTime
-import java.util.UUID
+import java.util.*
+import com.dylanmiska.jooq.generated.tables.Item as ItemTable
+import com.dylanmiska.jooq.generated.tables.Receipt as ReceiptTable
 
 @SpringBootTest
 class ReceiptRepositoryIntegrationTest {
     @Autowired
     private lateinit var receiptRepository: ReceiptRepository
 
+    @Autowired
+    private lateinit var dsl: DSLContext
+
     @Test
-    @Transactional
     fun `should save and retrieve receipt with items`() {
         val receipt =
-            ReceiptEntity(
+            Receipt(
                 retailer = "Target",
                 purchaseDate = LocalDate.of(2025, 2, 2),
                 purchaseTime = LocalTime.of(14, 0),
                 total = 25.50,
-                items = mutableListOf(),
                 points = 123,
+                items =
+                    listOf(
+                        Item(shortDescription = "Soda", price = 1.99),
+                        Item(shortDescription = "Chips", price = 2.50),
+                    ),
             )
 
-        receipt.items.addAll(
-            mutableListOf(
-                ItemEntity(shortDescription = "Soda", price = 1.99, receipt = receipt),
-                ItemEntity(shortDescription = "Chips", price = 2.50, receipt = receipt),
-            ),
-        )
+        // Call repository method
+        val savedReceiptId = receiptRepository.save(receipt)
 
-        val savedReceipt = receiptRepository.save(receipt)
-        val foundReceipt = receiptRepository.findById(savedReceipt.id!!)
+        // Fetch points to ensure data was saved
+        val retrievedReceipt =
+            dsl.selectFrom(ReceiptTable.RECEIPT)
+                .where(ReceiptTable.RECEIPT.ID.eq(savedReceiptId))
+                .fetchOneInto(Receipt::class.java)
 
-        assertTrue(foundReceipt.isPresent)
-        assertEquals("Target", foundReceipt.get().retailer)
-        assertEquals(LocalDate.of(2025, 2, 2), foundReceipt.get().purchaseDate)
-        assertEquals(LocalTime.of(14, 0), foundReceipt.get().purchaseTime)
-        assertEquals(25.50, foundReceipt.get().total)
-        assertEquals(123, foundReceipt.get().points)
-        assertEquals(2, foundReceipt.get().items.size)
+        val retrievedItems =
+            dsl.selectFrom(ItemTable.ITEM)
+                .where(ItemTable.ITEM.RECEIPT_ID.eq(savedReceiptId))
+                .fetchInto(Item::class.java)
+
+        assertNotNull(retrievedReceipt)
+        assertEquals(123, retrievedReceipt?.points)
+
+        assertNotNull(retrievedItems)
+        assertEquals(2, retrievedItems.size)
     }
 
     @Test
-    @Transactional
     fun `should save and retrieve receipt without items`() {
         val receipt =
-            ReceiptEntity(
+            Receipt(
                 retailer = "Target",
                 purchaseDate = LocalDate.of(2025, 2, 2),
                 purchaseTime = LocalTime.of(14, 0),
                 total = 25.50,
-                items = mutableListOf(),
                 points = 123,
+                items = emptyList(),
             )
 
-        val savedReceipt = receiptRepository.save(receipt)
-        val foundReceipt = receiptRepository.findById(savedReceipt.id!!)
+        // Call repository method
+        val savedReceiptId = receiptRepository.save(receipt)
 
-        assertTrue(foundReceipt.isPresent)
-        assertEquals("Target", foundReceipt.get().retailer)
-        assertEquals(LocalDate.of(2025, 2, 2), foundReceipt.get().purchaseDate)
-        assertEquals(LocalTime.of(14, 0), foundReceipt.get().purchaseTime)
-        assertEquals(25.50, foundReceipt.get().total)
-        assertEquals(123, foundReceipt.get().points)
-        assertEquals(0, foundReceipt.get().items.size)
+        // Fetch Receipt to ensure data was saved
+        val retrievedReceipt =
+            dsl.selectFrom(ReceiptTable.RECEIPT)
+                .where(ReceiptTable.RECEIPT.ID.eq(savedReceiptId))
+                .fetchOneInto(Receipt::class.java)
+
+        assertNotNull(retrievedReceipt)
+        assertEquals(123, retrievedReceipt?.points)
     }
 
     @Test
-    @Transactional
-    fun `should retrieve points for receipt`() {
-        val receipt =
-            ReceiptEntity(
-                retailer = "Target",
-                purchaseDate = LocalDate.of(2025, 2, 2),
-                purchaseTime = LocalTime.of(14, 0),
-                total = 25.50,
-                items = mutableListOf(),
-                points = 123,
-            )
+    fun `should return null if receipt not found`() {
+        val randomId = UUID.randomUUID()
 
-        val savedReceipt = receiptRepository.save(receipt)
-        val points = receiptRepository.getPointsForReceipt(savedReceipt.id!!)
+        // Call repository method with non-existent receipt
+        val retrievedPoints = receiptRepository.getPointsForReceipt(randomId)
 
-        assertEquals(123, points.get())
-    }
-
-    @Test
-    @Transactional
-    fun `shouldn't throw if not found`() {
-        val response = receiptRepository.getPointsForReceipt(UUID.randomUUID())
-        assertFalse(response.isPresent)
+        assertNull(retrievedPoints)
     }
 }

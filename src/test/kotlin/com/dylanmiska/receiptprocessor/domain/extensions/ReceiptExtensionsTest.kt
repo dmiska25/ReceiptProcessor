@@ -4,7 +4,6 @@ import com.dylanmiska.receiptprocessor.domain.model.Item
 import com.dylanmiska.receiptprocessor.domain.model.Receipt
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.LocalTime
 import kotlin.test.assertEquals
@@ -110,61 +109,6 @@ class ReceiptExtensionsTest {
 
             receipt.updatePoints()
             assertEquals(105, receipt.points)
-        }
-    }
-
-    @Nested
-    inner class TestToEntity {
-        @Test
-        fun testToEntity() {
-            val receipt =
-                Receipt(
-                    retailer = "Walmart",
-                    purchaseDate = LocalDate.of(2021, 1, 1),
-                    purchaseTime = LocalTime.of(15, 0),
-                    items =
-                        listOf(
-                            Item(
-                                shortDescription = "Milk",
-                                price = 2.99,
-                            ),
-                        ),
-                    total = 2.99,
-                    points = 1234,
-                )
-
-            val entity = receipt.toEntity()
-
-            assertEquals(receipt.id, entity.id)
-            assertEquals(receipt.retailer, entity.retailer)
-            assertEquals(receipt.purchaseDate, entity.purchaseDate)
-            assertEquals(receipt.purchaseTime, entity.purchaseTime)
-            assertEquals(receipt.total, entity.total)
-            assertEquals(receipt.points, entity.points)
-            assertEquals(receipt.items.size, entity.items.size)
-        }
-
-        @Test
-        fun `Points must be calculated before converting to entity`() {
-            val receipt =
-                Receipt(
-                    retailer = "Walmart",
-                    purchaseDate = LocalDate.of(2021, 1, 1),
-                    purchaseTime = LocalTime.of(15, 0),
-                    items =
-                        listOf(
-                            Item(
-                                shortDescription = "Milk",
-                                price = 2.99,
-                            ),
-                        ),
-                    total = 2.99,
-                    points = null,
-                )
-
-            assertThrows<IllegalStateException> {
-                receipt.toEntity()
-            }
         }
     }
 }

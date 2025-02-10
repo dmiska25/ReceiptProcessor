@@ -9,7 +9,7 @@ data class Receipt(
     val retailer: String,
     val purchaseDate: LocalDate,
     val purchaseTime: LocalTime,
-    val items: List<Item> = listOf(),
+    val items: List<Item>? = listOf(),
     val total: Double,
     var points: Long?,
 )

@@ -1,6 +1,5 @@
 package com.dylanmiska.receiptprocessor.domain.service
 
-import com.dylanmiska.receiptprocessor.domain.extensions.toEntity
 import com.dylanmiska.receiptprocessor.domain.extensions.updatePoints
 import com.dylanmiska.receiptprocessor.domain.model.Receipt
 import com.dylanmiska.receiptprocessor.persistance.repository.ReceiptRepository
@@ -12,7 +11,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.LocalTime
-import java.util.Optional
 import java.util.UUID
 import kotlin.NoSuchElementException
 import kotlin.test.assertSame
@@ -39,9 +37,9 @@ class ReceiptServiceTest {
                 total = 100.0,
                 points = null,
             )
-        val receiptEntity = receipt.apply { updatePoints() }.toEntity()
+        val receiptEntity = receipt.apply { updatePoints() }
 
-        every { receiptRepository.save(any()) } returns receiptEntity
+        every { receiptRepository.save(any()) } returns receiptEntity.id!!
 
         val id = receiptService.processReceipt(receipt)
 
@@ -54,7 +52,7 @@ class ReceiptServiceTest {
         val receiptId = UUID.randomUUID()
         val points = 100L
 
-        every { receiptRepository.getPointsForReceipt(receiptId) } returns Optional.of(points)
+        every { receiptRepository.getPointsForReceipt(receiptId) } returns points
 
         val result = receiptService.getPoints(receiptId)
 
@@ -63,10 +61,10 @@ class ReceiptServiceTest {
     }
 
     @Test
-    fun testGetPointsThrowsNoSuchElementException() {
+    fun testGetPointsReturnsNull() {
         val receiptId = UUID.randomUUID()
 
-        every { receiptRepository.getPointsForReceipt(receiptId) } returns Optional.empty()
+        every { receiptRepository.getPointsForReceipt(receiptId) } returns null
 
         assertThrows<NoSuchElementException> {
             receiptService.getPoints(receiptId)

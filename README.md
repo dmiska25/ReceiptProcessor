@@ -76,6 +76,12 @@ like in go and noticed some things that would probably be different from my expe
 2. I'd probably have to think more about some functions I take for granted in kotlin/java. I'm used to just pulling an off the shelf function for most things.
 3. Debugging would probably be a bit easier in go. I ran into a few issues with this solution that I'll mention below.
 
+### Other tools
+
+I switched out the default database management tool Hibernate for JOOQ instead. I made this decision because for a application
+that needs to run at scale I think it would be much more beneficial to have direct control over queries that are executed.
+Hibernate can be sometimes optimized but it would require much more time and debugging than most likely desirable or necessary.
+
 ### Challenges
 
 I ran into a couple issues with this solution. The first was with persisting the parent/children. You'll notice I added
